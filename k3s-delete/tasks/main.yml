@@ -13,3 +13,9 @@
     name: '{{ item }}'
     state: absent
   loop: '{{ k3s_delete_files }}'
+
+- name: Delete kubeconf
+  delegate_to: localhost
+  ansible.builtin.file:
+    path: k3s_kubeconf
+    state: absent
