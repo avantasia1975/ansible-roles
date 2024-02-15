@@ -1,0 +1,5 @@
+---
+# defaults file for k3s-agent
+k3s_version: "v1.28.6+k3s2"
+k3s_server_token: ""
+k3s_server_url: ""

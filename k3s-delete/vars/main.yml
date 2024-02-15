@@ -1,0 +1,8 @@
+---
+# vars file for k3s-delete
+k3s_delete_files:
+  - /etc/rancher
+  - /etc/systemd/system/k3s.service
+  - /var/lib/rancher
+  - /usr/local/bin/k3s
+  - /etc/default/k3s
