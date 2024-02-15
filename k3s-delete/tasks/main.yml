@@ -1,0 +1,15 @@
+---
+# tasks file for k3s-delete
+- name: Stop k3s service
+  become: true
+  ansible.builtin.systemd:
+    name: k3s
+    state: stopped
+    enabled: false
+
+- name: Delete files
+  become: true
+  ansible.builtin.file:
+    name: '{{ item }}'
+    state: absent
+  loop: '{{ k3s_delete_files }}'
