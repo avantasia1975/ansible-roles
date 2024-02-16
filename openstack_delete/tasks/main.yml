@@ -1,0 +1,79 @@
+---
+# tasks file for openstack_delete
+- name: Delete openstack server
+  tags:
+    - server
+  block:
+    - name: Get server list
+      openstack.cloud.server_info:
+        server: '{{ openstack_server_name + "*"}}'
+      register: openstack_servers
+
+    - name: Delete server
+      openstack.cloud.server:
+        name: "{{ item.name }}"
+        state: absent
+      loop: '{{ openstack_servers.openstack_servers }}'
+      no_log: true
+
+
+- name: Delete network
+  tags:
+    - network
+  block:
+    - name: Get subnet id
+      openstack.cloud.subnets_info:
+        name: '{{ openstack_network_subnet }}'
+      register: subnet
+
+    - name: Get used loadbalancers
+      ansible.builtin.command:
+        cmd: 'openstack loadbalancer list --vip-subnet-id {{ subnet.openstack_subnets[0].id }} --colum name -f value'
+      register: lbs
+      changed_when: lbs.changed
+
+    - name: Delete loadbalancers
+      openstack.cloud.loadbalancer:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ lbs.stdout.split('\n') }}"
+      when: lbs.stdout.split('\n')|length >= 1 and lbs.stdout.split('\n')[0] != ""
+
+    - name: Delete router
+      openstack.cloud.router:
+        name: '{{ openstack_network_router_name }}'
+        state: absent
+
+    - name: Delete subnet
+      openstack.cloud.subnet:
+        name: '{{ openstack_network_subnet }}'
+        state: absent
+
+    - name: Delete network
+      openstack.cloud.network:
+        name: '{{ openstack_network_name }}'
+        state: absent
+
+- name: Delete security
+  tags:
+    - security
+  block:
+    - name: Delete kns security group
+      openstack.cloud.security_group:
+        state: absent
+        name: '{{ openstack_security_group_name }}'
+
+- name: Delete ssh key
+  tags:
+    - sshkey
+  block:
+    - name: Delete ssh key pair
+      openstack.cloud.keypair:
+        name: '{{ openstack_server_ssh_key_name }}'
+        state: absent
+
+    - name: Delete ssh key from local
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: ./id_rsa
+        state: absent
