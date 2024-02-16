@@ -1,0 +1,14 @@
+---
+- name: Get server list
+  openstack.cloud.server_info:
+    server: '{{ item + "*" }}'
+  register: openstack_servers
+
+- name: Delete server
+  openstack.cloud.server:
+    name: "{{ server.name }}"
+    state: absent
+  loop: '{{ openstack_servers.openstack_servers }}'
+  loop_control:
+    loop_var: server
+  no_log: true
