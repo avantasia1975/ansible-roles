@@ -1,6 +1,7 @@
 ---
 # defaults file for openstack_delete
-openstack_server_name: "my-server"
+openstack_server_names:
+  - "my-server"
 openstack_server_ssh_key_name: "my-ssh-key"
 openstack_network_name: "my-network"
 openstack_network_subnet: "my-subnet"

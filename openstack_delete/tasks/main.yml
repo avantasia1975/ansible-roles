@@ -4,18 +4,9 @@
   tags:
     - server
   block:
-    - name: Get server list
-      openstack.cloud.server_info:
-        server: '{{ openstack_server_name + "*"}}'
-      register: openstack_servers
-
-    - name: Delete server
-      openstack.cloud.server:
-        name: "{{ item.name }}"
-        state: absent
-      loop: '{{ openstack_servers.openstack_servers }}'
-      no_log: true
-
+    - name: Delete servers
+      ansible.builtin.include_tasks: delete-servers.yaml
+      loop: "{{ openstack_server_names }}"
 
 - name: Delete network
   tags:
