@@ -33,6 +33,7 @@
   ansible.builtin.shell:
     cmd: 'openstack image list | grep "{{ openstack_server_image }}" | cut -d "|" -f 3 | head -n1'
   register: _image
+  changed_when: _image.changed
 
 - name: Set current image
   ansible.builtin.set_fact:
@@ -44,11 +45,13 @@
     image: "{{ kns_image }}"
     key_name: '{{ openstack_server_ssh_key_name }}'
     flavor: "{{ openstack_server_flavor }}"
-    security_groups: '{{ openstack_server_security_groups }}' 
+    security_groups: '{{ openstack_server_security_groups }}'
     network: '{{ openstack_network_name }}'
     auto_ip: '{{ openstack_server_auto_ip }}'
     userdata: "{{ openstack_server_userdata }}"
   with_sequence: count={{ openstack_server_count }}
+  loop_control:
+    label: '{{ "Creating " + openstack_server_name + "-" + item }}'
   register: _openstack_servers
 
 - name: Add hosts to play
