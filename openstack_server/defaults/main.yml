@@ -1,0 +1,15 @@
+---
+# defaults file for openstack_server
+openstack_server_ssh_key_name: "my-ssh-key"
+openstack_server_public_key: ""
+openstack_server_name: "my-server"
+openstack_server_flavor: m1.small
+openstack_server_public_key_file: ""
+openstack_network_name: "my-network"
+openstack_server_image: "Ubuntu Focal"
+openstack_server_auto_ip: "true"
+openstack_server_security_groups:
+  - default
+openstack_server_userdata: ""
+openstack_server_count: 3
+openstack_server_ansible_group: "all"

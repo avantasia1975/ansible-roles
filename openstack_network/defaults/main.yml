@@ -1,0 +1,10 @@
+---
+# defaults file for openstack_network
+openstack_network_name: "my-network"
+openstack_network_subnet: "my-subnet"
+openstack_network_cidr: "192.168.102.0/24"
+openstack_network_gateway_ip: "192.168.102.1"
+openstack_network_dns_nameservers: []
+openstack_network_router_name: "my-router"
+openstack_network_enable_snat: "true"
+openstack_network_external_network: "ext-net"

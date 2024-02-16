@@ -1,0 +1,3 @@
+---
+# defaults file for openstack_security
+openstack_security_group_name: "my-security-group"

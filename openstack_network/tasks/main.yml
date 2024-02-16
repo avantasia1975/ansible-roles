@@ -1,0 +1,21 @@
+---
+# tasks file for openstack_network
+- name: Create network
+  openstack.cloud.network:
+    name: '{{ openstack_network_name }}'
+
+- name: Create subnet
+  openstack.cloud.subnet:
+    name: '{{ openstack_network_subnet }}'
+    cidr: '{{ openstack_network_cidr }}'
+    gateway_ip: '{{ openstack_network_gateway_ip }}'
+    network_name: '{{ openstack_network_name }}'
+    dns_nameservers: '{{ openstack_network_dns_nameservers }}'
+
+- name: Create router
+  openstack.cloud.router:
+    name: '{{ openstack_network_router_name }}'
+    enable_snat: '{{ openstack_network_enable_snat }}'
+    interfaces:
+      - '{{ openstack_network_subnet }}'
+    network: '{{ openstack_network_external_network }}'

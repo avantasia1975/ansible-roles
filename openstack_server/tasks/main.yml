@@ -1,0 +1,72 @@
+---
+# tasks file for openstack_server
+- name: Create ssh key pair
+  when: openstack_server_public_key
+  openstack.cloud.keypair:
+    name: '{{ openstack_server_ssh_key_name }}'
+    public_key: '{{ openstack_server_public_key }}'
+  register: _knskey
+
+- name: Create ssh key pair
+  when: openstack_server_public_key_file
+  openstack.cloud.keypair:
+    name: '{{ openstack_server_ssh_key_name }}'
+    public_key_file: '{{ openstack_server_public_key_file }}'
+  register: _knskey
+
+- name: Create ssh key pair
+  when: not openstack_server_public_key and not openstack_server_public_key_file
+  openstack.cloud.keypair:
+    name: '{{ openstack_server_ssh_key_name }}'
+    public_key: '{{ openstack_server_public_key }}'
+  register: _knskey
+
+- name: Create local id_rsa file
+  delegate_to: localhost
+  ansible.builtin.copy:
+    dest: ./id_rsa
+    content: '{{ _knskey.key.private_key }}'
+    mode: '0700'
+  when: _knskey.changed
+
+- name: Get current image
+  ansible.builtin.shell:
+    cmd: 'openstack image list | grep "{{ openstack_server_image }}" | cut -d "|" -f 3 | head -n1'
+  register: _image
+
+- name: Set current image
+  ansible.builtin.set_fact:
+    kns_image: "{{ _image.stdout | trim }}"
+
+- name: Create Server
+  openstack.cloud.server:
+    name: '{{ openstack_server_name }}-{{ item }}'
+    image: "{{ kns_image }}"
+    key_name: '{{ openstack_server_ssh_key_name }}'
+    flavor: "{{ openstack_server_flavor }}"
+    security_groups: '{{ openstack_server_security_groups }}' 
+    network: '{{ openstack_network_name }}'
+    auto_ip: '{{ openstack_server_auto_ip }}'
+    userdata: "{{ openstack_server_userdata }}"
+  with_sequence: count={{ openstack_server_count }}
+  register: _openstack_servers
+
+- name: Add hosts to play
+  ansible.builtin.add_host:
+    host: '{{ item.openstack.public_v4 }}'
+    groups: '{{ openstack_server_ansible_group }}'
+  loop: '{{ _openstack_servers.results }}'
+  no_log: true
+
+- name: Create hosts file
+  ansible.builtin.file:
+    path: hosts.txt
+    state: touch
+    mode: '0666'
+
+- name: Add host to hostsfile
+  ansible.builtin.lineinfile:
+    path: hosts.txt
+    line: '{{ item.openstack.name + ": " + item.openstack.public_v4 }}'
+  loop: '{{ _openstack_servers.results }}'
+  no_log: true
