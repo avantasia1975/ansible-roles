@@ -1,31 +1,76 @@
-Role Name
-=========
+generate_ca
+===========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Generates a certificate from a given or created root ca
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- generate_ca_generate_rootca_key  
+  if true, a root-ca root key will be created. Default is true
 
-Dependencies
-------------
+- generate_ca_generate_rootca_crt   
+  if true, a root-ca root crt will be created. Default is true
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- generate_ca_passphrase  
+  The passphrase used for the root-ca key. Default "my-passphrase"
+
+- generate_ca_root_key_file  
+  File contains the root-ca key. Default "root_ca.key"
+
+- generate_ca_root_crt_file  
+  File contains the root-ca cert. Default "root_ca.crt"
+
+- generate_ca_root_key   
+  The root-ca key. Provided as var or read from file. Default ""
+
+- generate_ca_root_crt  
+  The root-ca cert. Provided as var or read from file. Default ""
+
+- generate_ca_cert_dir  
+  Local directory where to store the certs. Default "cert"
+
+- generate_ca_country_name  
+  Country for the csr. Default "de"
+
+- generate_ca_org_name  
+  Company for the csr. Default "example"
+
+- generate_ca_common_name  
+  Common name for the csr. Default "{{ inventory_hostname }}"
+
+- generate_ca_subject_alt_name  
+  Alternative names for the cert. Default ["DNS:{{ ansible_host }}"]
+
+- generate_ca_certificate_file  
+  Filename for the certificate. Default "{{ generate_ca_common_name }}-certificate.crt"
+
+- generate_ca_privatekey_file  
+  Filename for the private.key. Default "{{ generate_ca_common_name }}-private.key"
+
+- generate_ca_run_once  
+  If false, a certificate will be created for each host. Default false
+  It's a good idea to adjust common and san names accordingly
+
+- generate_ca_copy_cert  
+  If true, copies files to the host. Default false
+
+- generate_ca_copy_cert_folder  
+  Remote folder where to store the certificates. Default "/var/cert"
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+        - generate_ca
+          vars:
+            generate_ca_common_name: "www.example.com"
+            generate_ca_subject_alt_name:
+              - "DNS:examle.com"
+
+   
 
 License
 -------
@@ -35,4 +80,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Andreas Kaminski

@@ -1,31 +1,74 @@
-Role Name
-=========
+openstack_server
+================
 
-A brief description of the role goes here.
+Install openstack server 
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+ansible openstack collection
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- openstack_server_ssh_key_name  
+  Name of the ssh-key. Default "my-ssh-key"
 
-Dependencies
-------------
+- openstack_server_public_key  
+  Ssh key. Default ""
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- openstack_server_name  
+  Name of the server. Default "my-server"
+
+- openstack_server_flavor  
+  Flavor to use. Default m1.small
+
+- openstack_server_public_key_file  
+  Keyfile of ssh-key. Default ""
+
+- openstack_network_name  
+  Network name. Default "my-network"
+
+- openstack_server_image
+  Regex of image to install. Default "Ubuntu Focal"
+
+- openstack_server_auto_ip  
+  Use external ip address. Default "true"
+
+- openstack_server_security_groups  
+  List of security groups to use. Default [default]
+  
+- openstack_server_userdata  
+  Cloud-init-script to use. Default ""
+  
+- openstack_server_count  
+  Number of instances to install. Default 3 
+
+- openstack_server_ansible_group  
+  Ansible group to assign the host to. Default "all"
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: local
+      gather_facts: false
       roles:
-         - { role: username.rolename, x: 42 }
+        - role: openstack_server
+          vars:
+            openstack_server_name: "kube-server"
+            openstack_server_ansible_group: "server"
+            openstack_server_count: 1
+            openstack_server_security_groups:
+              - default
+              - my-security-group
+        - role: openstack_server
+          vars:
+            openstack_server_name: "kube-agent"
+            openstack_server_ansible_group: "agent"
+            openstack_server_count: 2
+            openstack_server_security_groups:
+              - default
+              - my-security-group
 
 License
 -------
@@ -35,4 +78,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Andreas Kaminski
