@@ -1,0 +1,20 @@
+---
+# defaults file for generate_ca
+generate_ca_generate_rootca_key: true
+generate_ca_generate_rootca_crt: true
+generate_ca_passphrase: "my-passphrase"
+generate_ca_root_key_file: "root_ca.key"
+generate_ca_root_crt_file: "root_ca.crt"
+generate_ca_root_key: ""
+generate_ca_root_crt: ""
+generate_ca_cert_dir: "cert"
+generate_ca_country_name: 'de'
+generate_ca_org_name: 'example'
+generate_ca_common_name: "{{ hostvars[inventory_hostname]['facter_ec2_metadata']['public-ipv4'] }}"
+generate_ca_certificate_file: "{{ generate_ca_common_name }}-certificate.crt"
+generate_ca_privatekey_file: "{{ generate_ca_common_name }}-private.key"
+generate_ca_subject_alt_name:
+  - "DNS:{{ ansible_host }}"
+generate_ca_run_once: true
+generate_ca_copy_cert: false
+generate_ca_copy_cert_folder: "/var/cert"
