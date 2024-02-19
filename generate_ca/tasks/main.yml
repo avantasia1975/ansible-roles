@@ -1,0 +1,107 @@
+---
+# tasks file for generate_ca
+- name: Generate or get root ca
+  delegate_to: localhost
+  block:
+    - name: Create cert dir
+      ansible.builtin.file:
+        path: '{{ generate_ca_cert_dir }}'
+        state: directory
+        mode: '0770'
+
+    - name: Create private key with password protection
+      when: generate_ca_generate_rootca_key
+      community.crypto.openssl_privatekey:
+        path: '{{ generate_ca_root_key_file }}'
+        passphrase: "{{ generate_ca_passphrase }}"
+        cipher: auto
+      run_once: true
+
+    - name: Set generate_ca_root_key
+      when: not generate_ca_root_key
+      ansible.builtin.set_fact:
+        generate_ca_root_key: "{{ lookup('ansible.builtin.file', generate_ca_root_key_file) }}"
+
+    - name: Create certificate signing request (CSR) for CA certificate
+      when: generate_ca_generate_rootca_crt
+      community.crypto.openssl_csr_pipe:
+        privatekey_content: '{{ generate_ca_root_key }}'
+        privatekey_passphrase: "{{ generate_ca_passphrase }}"
+        common_name: private CA
+        use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+        basic_constraints:
+          - 'CA:TRUE'
+        basic_constraints_critical: true
+        key_usage:
+          - keyCertSign
+        key_usage_critical: true
+      register: ca_csr
+      run_once: true
+
+    - name: Create self-signed CA certificate from CSR
+      when: generate_ca_generate_rootca_crt
+      community.crypto.x509_certificate:
+        path: '{{ generate_ca_root_crt_file }}'
+        csr_content: "{{ ca_csr.csr }}"
+        privatekey_content: '{{ generate_ca_root_key }}'
+        privatekey_passphrase: "{{ generate_ca_passphrase }}"
+        provider: selfsigned
+      run_once: true
+
+    - name: Set generate_ca_root_crt
+      when: not generate_ca_root_crt
+      ansible.builtin.set_fact:
+        generate_ca_root_crt: "{{ lookup('ansible.builtin.file', generate_ca_root_crt_file) }}"
+
+- name: Generate certificate
+  delegate_to: localhost
+  block:
+    - name: Create private key
+      community.crypto.openssl_privatekey:
+        path: '{{ generate_ca_cert_dir }}/{{ generate_ca_privatekey_file }}'
+      run_once: '{{ generate_ca_run_once }}'
+
+    - name: Create certificate signing request (CSR)
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: '{{ generate_ca_cert_dir }}/{{ generate_ca_privatekey_file }}'
+        country_name: '{{ generate_ca_country_name }}'
+        organization_name: '{{ generate_ca_org_name }}'
+        common_name: '{{ generate_ca_common_name }}'
+        subject_alt_name: '{{ generate_ca_subject_alt_name }}'
+      run_once: '{{ generate_ca_run_once }}'
+      register: csr
+
+    - name: Sign certificate with our CA
+      community.crypto.x509_certificate_pipe:
+        csr_content: "{{ csr.csr }}"
+        provider: ownca
+        ownca_content: '{{ generate_ca_root_crt }}'
+        ownca_privatekey_content: '{{ generate_ca_root_key }}'
+        ownca_privatekey_passphrase: "{{ generate_ca_passphrase }}"
+        ownca_not_after: +365d  # valid for one year
+        ownca_not_before: "-1d"  # valid since yesterday
+      run_once: '{{ generate_ca_run_once }}'
+      register: certificate
+
+    - name: Write certificate file to disk
+      ansible.builtin.copy:
+        dest: '{{ generate_ca_cert_dir }}/{{ generate_ca_certificate_file }}'
+        content: "{{ certificate.certificate }}"
+        mode: '0770'
+      run_once: '{{ generate_ca_run_once }}'
+
+- name: Copy cert to host
+  when: generate_ca_copy_cert
+  become: true
+  block:
+    - name: Create cert directory
+      ansible.builtin.file:
+        path: '{{ generate_ca_cert_folder }}'
+        state: directory
+        mode: '0770'
+
+    - name: Copy files to host
+      ansible.builtin.copy:
+        src: "{{ generate_ca_cert_dir }}/"
+        dest: '{{ generate_ca_copy_cert_folder }}/'
+        mode: '0770'
