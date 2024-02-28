@@ -36,6 +36,8 @@ Role Variables
 - vault_helm_etcd_prometheus_rules_enabled  
   Default: false
 
+- vault_helm_ingress_enabled
+  default: false
 
 Example Playbook
 ----------------

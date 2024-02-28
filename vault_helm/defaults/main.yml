@@ -7,3 +7,4 @@ vault_helm_prometheus_rules_enabled: false
 vault_helm_etcd_metrics_enabled: false
 vault_helm_etcd_podmonitor_enabled: false
 vault_helm_etcd_prometheus_rules_enabled: false
+vault_helm_ingress_enabled: false
