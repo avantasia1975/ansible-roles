@@ -26,6 +26,8 @@ server:
     accessMode: ReadWriteOnce
     # Annotations to apply to the PVC
     annotations: {}
+  ingress:
+    enabled: {{ vault_helm_ingress_enabled }}
   ha:
     enabled: true
     config: |
