@@ -51,9 +51,9 @@ server:
       }
 serverTelemetry:
   serviceMonitor:
-    enabled: true
+    enabled: {{ vault_helm_service_monitor_enabled }}
   prometheusRules:
-    enabled: true
+    enabled: {{ vault_helm_prometheus_rules_enabled }}
     rules:
       - alert: vault-HighResponseTime
         annotations:

@@ -1,5 +1,5 @@
 vault_helm
-====================
+==========
 
 Installs vault helm chart and etcd as backend
 
@@ -20,6 +20,21 @@ Role Variables
 
 - vault_helm_kubeconfig  
   Kubernetes config to use. Default: ~/.kube/conf
+
+- vault_helm_service_monitor_enables  
+  Default: false
+
+- vault_helm_prometheus_rules_enabled  
+  Default: false
+
+- vault_helm_etcd_metrics_enabled  
+  Default: false
+  
+- vault_helm_etcd_podmonitor_enabled  
+  Default: false
+
+- vault_helm_etcd_prometheus_rules_enabled  
+  Default: false
 
 
 Example Playbook
