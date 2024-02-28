@@ -2,3 +2,8 @@
 # defaults file for vault_helm
 vault_helm_namespace: test
 vault_helm_kubeconfig: k3s_kubeconf
+vault_helm_service_monitor_enables: false
+vault_helm_prometheus_rules_enabled: false
+vault_helm_etcd_metrics_enabled: false
+vault_helm_etcd_podmonitor_enabled: false
+vault_helm_etcd_prometheus_rules_enabled: false
