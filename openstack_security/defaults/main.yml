@@ -1,3 +1,4 @@
 ---
 # defaults file for openstack_security
 openstack_security_group_name: "my-security-group"
+openstack_security_group_tcp_ports: [22]
