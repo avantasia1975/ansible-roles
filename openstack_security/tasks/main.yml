@@ -4,29 +4,18 @@
   openstack.cloud.security_group:
     name: '{{ openstack_security_group_name }}'
 
-- name: Add ssh to security group
+- name: Add tcp ports
   openstack.cloud.security_group_rule:
     security_group: '{{ openstack_security_group_name }}'
-    port_range_min: 22
-    port_range_max: 22
+    port_range_min:  '{{ item }}'
+    port_range_max: '{{ item }}'
     protocol: TCP
     remote_ip_prefix: 0.0.0.0/0
   register: add_group_rule
   failed_when: >
     add_group_rule.changed == false and
     "Security group rule already exists" not in add_group_rule.msg
-
-- name: Add k8s api to security group
-  openstack.cloud.security_group_rule:
-    security_group: '{{ openstack_security_group_name }}'
-    port_range_min: 6443
-    port_range_max: 6443
-    protocol: TCP
-    remote_ip_prefix: 0.0.0.0/0
-  register: add_group_rule
-  failed_when: >
-    add_group_rule.changed == false and
-    "Security group rule already exists" not in add_group_rule.msg
+  loop: '{{ openstack_security_group_tcp_ports }}'
 
 - name: Add icmp to security group
   openstack.cloud.security_group_rule:
