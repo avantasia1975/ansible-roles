@@ -1,0 +1,71 @@
+global:
+  # enabled is the master enabled switch. Setting this to true or false
+  # will enable or disable all the components within this chart by default.
+  enabled: true
+
+
+injector:
+  enabled: "false"
+
+server:
+  enabled: "true"
+  logLevel: "warn"
+  logFormat: "standard"
+  dataStorage:
+    enabled: false
+  auditStorage:
+    enabled: true
+    # Size of the PVC created
+    size: 10Gi
+    # Location where the PVC will be mounted.
+    mountPath: "/vault/audit"
+    # Name of the storage class to use.  If null it will use the
+    # configured default Storage Class.
+    storageClass: null
+    # Access Mode of the storage device being used for the PVC
+    accessMode: ReadWriteOnce
+    # Annotations to apply to the PVC
+    annotations: {}
+  ha:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+        telemetry {
+          unauthenticated_metrics_access = "true"
+        }
+      }
+      storage "etcd" {
+        path = "vault"
+        address = "http://etcd:2379"
+        etcd_api = "v3"
+        ha_enabled    = "true"
+      }
+      telemetry {
+        prometheus_retention_time = "30s"
+        disable_hostname = true
+      }
+serverTelemetry:
+  serviceMonitor:
+    enabled: true
+  prometheusRules:
+    enabled: true
+    rules:
+      - alert: vault-HighResponseTime
+        annotations:
+          message: The response time of Vault is over 500ms on average over the last 5 minutes.
+        expr: vault_core_handle_request{quantile="0.5", namespace="vault"} > 500
+        for: 5m
+        labels:
+          severity: warning
+      - alert: vault-HighResponseTime
+        annotations:
+          message: The response time of Vault is over 1s on average over the last 5 minutes.
+        expr: vault_core_handle_request{quantile="0.5", namespace="vault"} > 1000
+        for: 5m
+        labels:
+          severity: critical

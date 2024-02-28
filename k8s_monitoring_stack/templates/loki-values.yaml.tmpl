@@ -1,0 +1,40 @@
+loki:
+  storage:
+    bucketNames:
+      chunks: loki-stage
+      ruler: loki-rules-stage
+    type: s3
+    s3:
+      endpoint: mimir-minio.{{ k8s_monitoring_stack_namespace }}.svc:9000
+      accessKeyId: {{ k8s_monitoring_minio_user }}
+      secretAccessKey: {{ k8s_monitoring_minio_password }}
+      s3ForcePathStyle: true
+      insecure: true
+  structuredConfig:
+    analytics:
+      reporting_enabled: false
+
+gateway:
+  basicAuth:
+    enabled: true
+    username: {{ k8s_monitoring_loki_basic_auth_user }}
+    password: {{ k8s_monitoring_loki_basic_auth_password }}
+
+monitoring:
+  selfMonitoring:
+    tenant: {{ k8s_monitoring_loki_tenant  }}
+    enabled: false
+    grafanaAgent:
+      installOperator: false
+  serviceMonitor:
+    enabled: true
+  dashboards:
+    enabled: true
+  alerts:
+    enabled: false
+  rules:
+    enabled: false
+
+test:
+  enabled: false
+
