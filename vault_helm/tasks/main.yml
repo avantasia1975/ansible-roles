@@ -1,0 +1,56 @@
+---
+# tasks file for vault_helm
+- name: Install charts
+  tags:
+    - install
+  block:
+    - name: Add Hashicorp repo
+      kubernetes.core.helm_repository:
+        name: hashicorp
+        repo_url: https://helm.releases.hashicorp.com
+
+    - name: Add Bitnami repo
+      kubernetes.core.helm_repository:
+        name: bitnami
+        repo_url: https://charts.bitnami.com/bitnami
+
+    - name: Install Vault
+      kubernetes.core.helm:
+        name: vault
+        namespace: "{{ vault_helm_namespace }}"
+        kubeconfig: "{{ vault_helm_kubeconfig }}"
+        create_namespace: true
+        chart_ref: hashicorp/vault
+        chart_version: 0.25.0
+        values: "{{ lookup('template', 'vault-values.yaml.tmpl') | from_yaml }}"
+        wait_timeout: 360s
+
+    - name: Install etcd
+      kubernetes.core.helm:
+        name: etcd
+        namespace: "{{ vault_helm_namespace }}"
+        kubeconfig: "{{ vault_helm_kubeconfig }}"
+        chart_ref: bitnami/etcd
+        chart_version: 9.0.6
+        create_namespace: true
+        values: "{{ lookup('template', 'etcd-values.yaml.tmpl') | from_yaml }}"
+
+
+- name: Delete charts
+  tags:
+    - never
+    - delete-charts
+  block:
+    - name: Delete Vault
+      kubernetes.core.helm:
+        name: vault
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
+
+    - name: Delete etcd
+      kubernetes.core.helm:
+        name: etcd
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent

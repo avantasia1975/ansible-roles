@@ -1,0 +1,19 @@
+---
+# defaults file for k8s_monitoring_stack
+k8s_monitoring_stack_namespace: test
+k8s_monitoring_stack_kubeconfig: k3s_kubeconf
+
+k8s_monitoring_grafana_user: test
+k8s_monitoring_grafana_password: test
+k8s_monitoring_grafana_replicas: 1
+
+k8s_monitoring_minio_user: k8s_monitoring-user
+k8s_monitoring_minio_password: k8s_monitoring_password
+
+k8s_monitoring_loki_basic_auth_user: loki
+k8s_monitoring_loki_basic_auth_password: loki
+k8s_monitoring_loki_tenant: self-monitoring
+
+k8s_monitoring_mimir_basic_auth_user: mimir
+k8s_monitoring_mimir_basic_auth_password: mimir
+k8s_monitoring_mimir_tenant: anonymous

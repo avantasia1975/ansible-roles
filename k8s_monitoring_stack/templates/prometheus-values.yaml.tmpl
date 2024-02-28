@@ -1,0 +1,62 @@
+global:
+  rbac:
+    create: true
+
+    ## Create ClusterRoles that extend the existing view, edit and admin ClusterRoles to interact with prometheus-operator CRDs
+    ## Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
+    createAggregateClusterRoles: false
+    pspEnabled: false
+    pspAnnotations: {}
+      ## Specify pod annotations
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#apparmor
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#sysctl
+      ##
+      # seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+      # seccomp.security.alpha.kubernetes.io/defaultProfileName: 'docker/default'
+      # apparmor.security.beta.kubernetes.io/defaultProfileName: 'runtime/default'
+
+  ## Global image registry to use if it needs to be overriden for some specific use cases (e.g local registries, custom images, ...)
+  ##
+  imageRegistry: ""
+
+  ## Reference to one or more secrets to be used when pulling images
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ##
+  imagePullSecrets: []
+  # - name: "image-pull-secret"
+  # or
+  # - "image-pull-secret"
+
+## Configuration for alertmanager
+## ref: https://prometheus.io/docs/alerting/alertmanager/
+##
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+
+  selfMonitor:
+    enabled: false
+
+## Deploy node exporter as a daemonset to all nodes
+##
+nodeExporter:
+  enabled: true
+prometheus:
+  enabled: true
+  prometheusSpec:
+    remoteWrite: 
+      - url: http://mimir-nginx/api/v1/push
+        basicAuth:
+          username: 
+            name: mimir-basic-auth
+            key: username
+          password:
+            name: mimir-basic-auth
+            key: password
+  extraSecret:
+    name: mimir-basic-auth
+    data:
+      username: {{ k8s_monitoring_mimir_basic_auth_user }}
+      password: {{ k8s_monitoring_mimir_basic_auth_password }}
