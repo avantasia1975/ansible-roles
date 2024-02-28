@@ -1,0 +1,4 @@
+---
+# defaults file for vault_helm
+vault_helm_namespace: test
+vault_helm_kubeconfig: k3s_kubeconf

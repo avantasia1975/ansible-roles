@@ -1,0 +1,51 @@
+mimir:
+  structuredConfig: 
+    activity_tracker:
+      filepath: /active-query-tracker/activity.log
+    usage_stats:
+      enabled: false 
+
+ingester:
+  zoneAwareReplication:
+    # -- Enable zone-aware replication for ingester
+    enabled: false
+
+
+store_gateway:
+  zoneAwareReplication:
+    # -- Enable zone-aware replication for store-gateway
+    enabled: false
+
+minio:
+  enabled: true
+  mode: standalone
+  rootUser: {{ k8s_monitoring_minio_user }} 
+  buckets:
+    - name: mimir-tsdb
+      policy: none
+      purge: false
+    - name: mimir-ruler
+      policy: none
+      purge: false
+    - name: loki-stage
+      policy: none
+      purge: false
+    - name: loki-rules-stage
+      policy: none
+      purge: false
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  rootPassword: {{ k8s_monitoring_minio_password }}
+  # Changed the mc config path to '/tmp' from '/etc' as '/etc' is only writable by root and OpenShift will not permit this.
+  configPathmc: "/tmp/minio/mc/"
+
+gateway:
+  nginx:
+    basicAuth: 
+      enabled: true
+      username: {{ k8s_monitoring_mimir_basic_auth_user }}
+      password: {{ k8s_monitoring_mimir_basic_auth_password }}

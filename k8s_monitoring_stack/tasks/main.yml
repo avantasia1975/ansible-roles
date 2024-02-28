@@ -1,0 +1,102 @@
+---
+# tasks file for k8s_k8s_monitoring_stack
+- name: Install charts
+  tags:
+    - install
+  block:
+    - name: Add grafana chart
+      kubernetes.core.helm_repository:
+        name: grafana
+        repo_url: https://grafana.github.io/helm-charts
+
+    - name: Add prometheus repo
+      kubernetes.core.helm_repository:
+        name: prom
+        repo_url: https://prometheus-community.github.io/helm-charts/
+
+    - name: Install mimir, this can take a while
+      kubernetes.core.helm:
+        name: mimir
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        create_namespace: true
+        chart_ref: grafana/mimir-distributed
+        chart_version: 4.0.1
+        values: "{{ lookup('template', 'mimir-values.yaml.tmpl') | from_yaml }}"
+        wait_timeout: 360s
+
+    - name: Install prometheus
+      kubernetes.core.helm:
+        name: prometheus
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        chart_ref: prom/kube-prometheus-stack
+        chart_version: 43.2.1
+        create_namespace: true
+        values: "{{ lookup('template', 'prometheus-values.yaml.tmpl') | from_yaml }}"
+
+    - name: Install loki
+      kubernetes.core.helm:
+        name: loki
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        chart_ref: grafana/loki
+        chart_version: 3.8.0
+        values: "{{ lookup('template', 'loki-values.yaml.tmpl') | from_yaml }}"
+
+    - name: Install promtail
+      kubernetes.core.helm:
+        name: promtail
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        chart_ref: grafana/promtail
+        values: "{{ lookup('template', 'promtail-values.yaml.tmpl') | from_yaml }}"
+
+    - name: Install Grafana-test
+      kubernetes.core.helm:
+        name: grafana
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        create_namespace: true
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        chart_ref: grafana/grafana
+        values: "{{ lookup('template', 'grafana-values.yaml.tmpl') | from_yaml }}"
+
+- name: Delete charts
+  tags:
+    - never
+    - delete-monitoring
+  block:
+    - name: Delete Grafana
+      kubernetes.core.helm:
+        name: grafana
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
+
+    - name: Delete prometheus
+      kubernetes.core.helm:
+        name: prometheus
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
+
+    - name: Delete mimir
+      kubernetes.core.helm:
+        name: mimir
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
+
+    - name: Delete loki
+      kubernetes.core.helm:
+        name: loki
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
+
+    - name: Delete promtail
+      kubernetes.core.helm:
+        name: promtail
+        namespace: "{{ k8s_monitoring_stack_namespace }}"
+        kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
+        state: absent
