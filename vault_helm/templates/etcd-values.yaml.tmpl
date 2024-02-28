@@ -24,12 +24,12 @@ resources:
     memory: 500Mi
 
 metrics:
-  enabled: true
+  enabled: {{ vault_helm_etcd_metrics_enabled }}
   podMonitor:
-    enabled: true
+    enabled: {{ vault_helm_etcd_podmonitor_enabled }}
     namespace: vault
   prometheusRule:
-    enabled: true
+    enabled: {{ vault_helm_etcd_prometheus_rules_enabled }} 
     rules:
       - alert: etcdInsufficientMembers
         annotations:
