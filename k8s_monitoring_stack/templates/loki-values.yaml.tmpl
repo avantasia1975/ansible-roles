@@ -13,6 +13,15 @@ loki:
   structuredConfig:
     analytics:
       reporting_enabled: false
+    schema_config:
+      configs:
+        - from: 2024-04-01
+          object_store: s3
+          store: tsdb
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
 
 gateway:
   basicAuth:
@@ -22,7 +31,8 @@ gateway:
 
 monitoring:
   selfMonitoring:
-    tenant: {{ k8s_monitoring_loki_tenant  }}
+    tenant:
+      name: {{ k8s_monitoring_loki_tenant  }}
     enabled: false
     grafanaAgent:
       installOperator: false
