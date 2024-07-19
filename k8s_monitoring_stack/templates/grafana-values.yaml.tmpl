@@ -1,31 +1,32 @@
-replicas: {{ k8s_monitoring_grafana_replicas }}
-adminUser: {{ k8s_monitoring_grafana_user }}
-adminPassword: {{ k8s_monitoring_grafana_password }}
-datasources: 
+---
+replicas: {{k8s_monitoring_grafana_replicas}}
+adminUser: {{k8s_monitoring_grafana_user}}
+adminPassword: {{k8s_monitoring_grafana_password}}
+datasources:
   datasources.yaml:
     apiVersion: 1
     datasources:
-    - name: Mimir
-      type: prometheus
-      url: http://mimir-nginx/prometheus
-      basicAuth: true
-      basicAuthUser: {{ k8s_monitoring_mimir_basic_auth_user }}
-      jsonData:
-        httpHeaderName1: "X-Scope-OrgID"
-      secureJsonData:
-        httpHeaderValue1: {{ k8s_monitoring_mimir_tenant }}
-        basicAuthPassword: {{ k8s_monitoring_mimir_basic_auth_password }}
-      access: proxy
-      isDefault: true
-    - name: Loki
-      type: loki
-      url: http://loki-gateway
-      access: proxy
-      editable: true
-      basicAuth: true
-      basicAuthUser: {{ k8s_monitoring_loki_basic_auth_user }}
-      jsonData:
-        httpHeaderName1: "X-Scope-OrgID"
-      secureJsonData:
-        httpHeaderValue1: {{ k8s_monitoring_loki_tenant }}
-        basicAuthPassword: {{ k8s_monitoring_loki_basic_auth_password }}
+      - name: Mimir
+        type: prometheus
+        url: http://mimir-nginx/prometheus
+        basicAuth: true
+        basicAuthUser: {{k8s_monitoring_mimir_basic_auth_user}}
+        jsonData:
+          httpHeaderName1: "X-Scope-OrgID"
+        secureJsonData:
+          httpHeaderValue1: {{k8s_monitoring_mimir_tenant}}
+          basicAuthPassword: {{k8s_monitoring_mimir_basic_auth_password}}
+        access: proxy
+        isDefault: true
+      - name: Loki
+        type: loki
+        url: http://loki-gateway
+        access: proxy
+        editable: true
+        basicAuth: true
+        basicAuthUser: {{k8s_monitoring_loki_basic_auth_user}}
+        jsonData:
+          httpHeaderName1: "X-Scope-OrgID"
+        secureJsonData:
+          httpHeaderValue1: {{k8s_monitoring_loki_tenant}}
+          basicAuthPassword: {{k8s_monitoring_loki_basic_auth_password}}

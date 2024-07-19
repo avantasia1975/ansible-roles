@@ -1,10 +1,11 @@
+---
 config:
   clients:
     - url: http://loki-gateway/loki/api/v1/push
       basic_auth:
-        password: '{{ k8s_monitoring_loki_basic_auth_password }}'
-        username: '{{ k8s_monitoring_loki_basic_auth_user }}'
-      tenant_id: '{{ k8s_monitoring_loki_tenant }}'
+        password: '{{k8s_monitoring_loki_basic_auth_password}}'
+        username: '{{k8s_monitoring_loki_basic_auth_user}}'
+      tenant_id: '{{k8s_monitoring_loki_tenant}}'
   snippets:
     common:
       - action: replace
