@@ -30,3 +30,9 @@ datasources:
         secureJsonData:
           httpHeaderValue1: {{k8s_monitoring_loki_tenant}}
           basicAuthPassword: {{k8s_monitoring_loki_basic_auth_password}}
+
+sidecar:
+  dashboards:
+    enable: true
+  datasources:
+    enable: true
