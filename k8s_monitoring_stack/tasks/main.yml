@@ -41,7 +41,7 @@
         namespace: "{{ k8s_monitoring_stack_namespace }}"
         kubeconfig: "{{ k8s_monitoring_stack_kubeconfig }}"
         chart_ref: grafana/loki
-        chart_version: 6.7.1 
+        chart_version: 5.48.0
         values: "{{ lookup('template', 'loki-values.yaml.tmpl') | from_yaml }}"
 
     - name: Install promtail

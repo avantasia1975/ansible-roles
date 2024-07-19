@@ -1,6 +1,6 @@
 ---
 # defaults file for k3s_delete
-k3s_delete_files: 
+k3s_delete_files:
   - /etc/rancher
   - /etc/systemd/system/k3s.service
   - /var/lib/rancher
